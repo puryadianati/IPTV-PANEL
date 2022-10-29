@@ -26,8 +26,8 @@ class List_Ip(TemplateView):
         provider = []
         ses = requests.Session()
         ses.headers['User-Agent'] = 'Mozilla/5'
-        url = "http://135.181.130.142:25500/login.php"
-        ref = "http://135.181.130.142:25500/login.php"
+        url = "http://195.201.0.157:25500/login.php"
+        ref = "http://195.201.0.157:25500/login.php"
         headers = {"Referer": ref}
         password = {'username': 'admin', 'password': 'admin'}
         cookiename = ''
@@ -38,7 +38,7 @@ class List_Ip(TemplateView):
             cookiename = cookie.name
             cookievalue = cookie.value
 
-        x = requests.get('http://135.181.130.142:25500/api.php?action=stream&sub=list&catstream=' + name + '&pageno=1',
+        x = requests.get('http://195.201.0.157:25500/api.php?action=stream&sub=list&catstream=' + name + '&pageno=1',
                          cookies={'PHPSESSID': cookievalue})
         import json
 
@@ -59,11 +59,11 @@ class List_Ip(TemplateView):
                     ']', '')).netloc)
             name_list.append(employee_dict['data']['items'][i]['id']['stream_display_name'])
             import itertools
-            all = zip(list_url, name_list,provider)
+            all = zip(list_url, name_list, provider)
 
         context['url'] = all
         context['name'] = name_list
-        return context
+        return HttpResponse(employee_dict)
 
 
 def sex(request):
@@ -101,17 +101,18 @@ def sex(request):
 def stream(requets):
     import requests
     file_name = str(0) + ".ts"
-    link='http://venomtt.com:8000/50643437655519/30565206953908/190949'
+    link = 'http://venomtt.com:8000/50643437655519/30565206953908/190949'
     print("Downloading file:%s" % file_name)
 
     # create response object
     r = requests.get(link, stream=True)
     # download started
-    with open("media_cdn/"+file_name, 'wb') as f:
+    with open("media_cdn/" + file_name, 'wb') as f:
         for chunk in r.iter_content(chunk_size=1024 * 1024):
             if chunk:
                 f.write(chunk)
     return HttpResponse("ok")
+
 
 def stream2(request):
     import os
@@ -124,6 +125,7 @@ def stream2(request):
     response['Content-Disposition'] = f'attachement; filename="porya.ts"'
     return response
 
+
 def stream3(request):
     import os
     import requests
@@ -135,3 +137,81 @@ def stream3(request):
     response['Content-Disposition'] = f'attachement; filename="sex.ts"'
     return response
 
+
+from django.shortcuts import render
+from django.views.generic import View
+
+from rest_framework.views import APIView
+from rest_framework.response import Response
+
+
+class HomeView(View):
+    def get(self, request, *args, **kwargs):
+        return render(request, 'chart.html')
+
+
+####################################################
+
+## if you don't want to user rest_framework
+
+# def get_data(request, *args, **kwargs):
+#
+# data ={
+#             "sales" : 100,
+#             "person": 10000,
+#     }
+#
+# return JsonResponse(data) # http response
+
+
+#######################################################
+
+## using rest_framework classes
+
+class ChartData(APIView):
+    authentication_classes = []
+    permission_classes = []
+
+    def get(self, request, format=None):
+        labels = [
+            'cpu ( % ) ',
+            'ram ( % ) ',
+
+        ]
+        import requests
+        name = ""
+        list_url = []
+        name_list = []
+        provider = []
+        ses = requests.Session()
+        ses.headers['User-Agent'] = 'Mozilla/5'
+        url = "http://195.201.0.157:25500/login.php"
+        ref = "http://195.201.0.157:25500/login.php"
+        headers = {"Referer": ref}
+        password = {'username': 'admin', 'password': 'admin'}
+        cookiename = ''
+        cookievalue = ''
+        response = ses.post(url, data=password, headers=headers)
+        cookieJar = ses.cookies
+        for cookie in cookieJar:
+            cookiename = cookie.name
+            cookievalue = cookie.value
+
+        x = requests.get('http://195.201.0.157:25500/api.php?action=stats', cookies={'PHPSESSID': cookievalue})
+        import json
+
+        # JSON string
+
+        # Convert string to Python dict
+        from urllib.parse import urlparse
+        employee_dict = json.loads(x.text)
+
+        chartLabel = "server1"
+        chartdata = [employee_dict['servers'][0]['cpu'], employee_dict['servers'][0]['mem']]
+        data = {
+            "labels": labels,
+            "chartLabel": chartLabel,
+            "chartdata": chartdata,
+            "uptime": employee_dict['servers'][0]['uptime']
+        }
+        return Response(data)

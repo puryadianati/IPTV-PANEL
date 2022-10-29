@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'home',
+    'rest_framework',
    
 ]
 DATA_UPLOAD_MAX_NUMBER_FIELDS=200000
