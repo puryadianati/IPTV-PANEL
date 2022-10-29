@@ -1,3 +1,5 @@
+{% extends 'base.html' %}
+{% block content %}
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 
@@ -16,38 +18,7 @@
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
 
 </head>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="#">Ipsell </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent"
-                aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="#">Home</a>
-                </li>
 
-                <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button"
-                       data-bs-toggle="dropdown" aria-expanded="false">
-                        User
-                    </a>
-                    <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <li><a class="dropdown-item" href="{% url 'user' %}">Add user and review</a></li>
-                        <li>
-                            <hr class="dropdown-divider">
-                        </li>
-
-                    </ul>
-                </li>
-
-            </ul>
-
-        </div>
-    </div>
-</nav>
 
 <body class="container-fluid">
 <center class="row">
@@ -56,9 +27,14 @@
 <hr/>
 <div class="row">
 
-    <div class="col-md-3">
+    <div class="col-md-4">
+        <p class="text-danger" id="serverdata"> Server Data Is loading plese wait 5 second</p>
         <canvas id="myChartBar"></canvas>
-        <p class="font-monospace">server uptime <p id="uptime">dfdf </p> </p>
+        <p class="font-monospace" id="input"></p>
+        <p class="font-monospace" id="output"></p>
+        <p class="font-monospace" id="totallconnection"></p>
+        <p class="font-monospace" id="livestream"></p>
+
 
     </div>
 </div>
@@ -90,53 +66,57 @@
     }
 
 
+    function drawBarGraph(data, id) {
+        var labels = data.labels;
+        var chartLabel = data.chartLabel;
+        var chartdata = data.chartdata;
+        var uptime = data.uptime;
+        var ctx = document.getElementById(id).getContext('2d');
+        document.getElementById('serverdata').style.display = 'none';
+        document.getElementById('input').textContent = "Input :" + data.input
+        document.getElementById('output').textContent = "Output :" + data.output
+        document.getElementById('totallconnection').textContent = "totall connection :" + data.input3
+        document.getElementById('livestream').textContent = "Live stream :" + data.input2 + "/" + data.input1
 
-
-
-        function drawBarGraph(data, id) {
-            var labels = data.labels;
-            var chartLabel = data.chartLabel;
-            var chartdata = data.chartdata;
-            var uptime=data.uptime;
-            var ctx = document.getElementById(id).getContext('2d');
-            var myChart = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        label: chartLabel,
-                        data: chartdata,
-                        backgroundColor: [
-                            'rgba(255, 99, 132, 0.2)',
-                            'rgba(54, 162, 235, 0.2)',
-                            'rgba(255, 206, 86, 0.2)',
-                            'rgba(75, 192, 192, 0.2)',
-                            'rgba(153, 102, 255, 0.2)',
-                            'rgba(255, 159, 64, 0.2)'
-                        ],
-                        borderColor: [
-                            'rgba(255, 99, 132, 1)',
-                            'rgba(54, 162, 235, 1)',
-                            'rgba(255, 206, 86, 1)',
-                            'rgba(75, 192, 192, 1)',
-                            'rgba(153, 102, 255, 1)',
-                            'rgba(255, 159, 64, 1)'
-                        ],
-                        borderWidth: 1
+        var myChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: chartLabel,
+                    data: chartdata,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(153, 102, 255, 0.2)',
+                        'rgba(255, 159, 64, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
                     }]
-                },
-                options: {
-                    scales: {
-                        yAxes: [{
-                            ticks: {
-                                beginAtZero: true
-                            }
-                        }]
-                    }
                 }
-            });
-        }
+            }
+        });
+    }
 </script>
 </body>
 
 </html>
+{% endblock content %}

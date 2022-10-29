@@ -1,13 +1,19 @@
 from django.shortcuts import render
 from django.views.generic import TemplateView
-from django.http import HttpResponse
+from django.http import HttpResponse,HttpResponseRedirect
 from django.views import View
 from django.shortcuts import redirect
+from django.shortcuts import render, redirect, get_object_or_404,reverse
 
 
 # Create your views here.
-class Home(TemplateView):
-    template_name = "index.html"
+def Home(request):
+    context = {}
+
+    user = request.user
+    if not user.is_authenticated:
+        return redirect('must_authenticate')
+    return render(request, "index.html", context)
 
 
 class User(TemplateView):
@@ -147,6 +153,8 @@ from rest_framework.response import Response
 
 class HomeView(View):
     def get(self, request, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return HttpResponseRedirect('must_authenticate')
         return render(request, 'chart.html')
 
 
@@ -171,13 +179,17 @@ class HomeView(View):
 class ChartData(APIView):
     authentication_classes = []
     permission_classes = []
+    redirect_authenticated_user = True
 
     def get(self, request, format=None):
+
+
         labels = [
             'cpu ( % ) ',
             'ram ( % ) ',
 
         ]
+
         import requests
         name = ""
         list_url = []
@@ -206,12 +218,18 @@ class ChartData(APIView):
         from urllib.parse import urlparse
         employee_dict = json.loads(x.text)
 
-        chartLabel = "server1"
+        chartLabel = "Main server"
         chartdata = [employee_dict['servers'][0]['cpu'], employee_dict['servers'][0]['mem']]
         data = {
             "labels": labels,
             "chartLabel": chartLabel,
             "chartdata": chartdata,
-            "uptime": employee_dict['servers'][0]['uptime']
+            "uptime": employee_dict['servers'][0]['uptime'],
+            "input": employee_dict['servers'][0]['bytes_received'],
+            "output": employee_dict['servers'][0]['bytes_sent'],
+            "input1": employee_dict['servers'][0]['total_streams'],
+            "input2": employee_dict['servers'][0]['total_running_streams'],
+            "input3": employee_dict['servers'][0]['total_connections'],
+
         }
         return Response(data)
